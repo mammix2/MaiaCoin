@@ -8,7 +8,7 @@
 ###############################################################################################
 TEMPLATE = app
 TARGET = maiacoin-qt
-VERSION = 3.0.0.7
+VERSION = 3.0.0.8
 INCLUDEPATH += src src/json \
     src/qt \
     src/sph
@@ -327,7 +327,7 @@ HEADERS += src/qt/bitcoingui.h \
     src/hashblock.h \
     src/limitedmap.h \
     src/threadsafety.h \
-    src/txdb-leveldb.h /
+    src/txdb-leveldb.h \
     src/pow_control.h
 
 
