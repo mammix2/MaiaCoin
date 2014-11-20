@@ -8,7 +8,7 @@
 ###############################################################################################
 TEMPLATE = app
 TARGET = maiacoin-qt
-VERSION = 3.0.0.6
+VERSION = 3.0.0.7
 INCLUDEPATH += src src/json \
     src/qt \
     src/sph
