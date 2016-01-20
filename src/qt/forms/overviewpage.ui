@@ -13,9 +13,6 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true"/>
-  </property>
   <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -254,12 +251,9 @@
       </spacer>
      </item>
      <item>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="lbl_wallet_logo">
        <property name="text">
-        <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap resource="../bitcoin.qrc">:/images/Wallet_Logo</pixmap>
+        <string>wallet pixmap</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -358,8 +352,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../bitcoin.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
