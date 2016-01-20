@@ -49,8 +49,9 @@
         <file alias="twitter">res/icons/twitter_32x32.png</file>
     </qresource>
     <qresource prefix="/images">
+        <file alias="about">res/images/about.png</file>
         <file alias="splash">res/images/splash.png</file>
-        <file alias="Wallet_Logo">res/images/wallet_logo.png</file>
+        <file alias="wallet_logo">res/images/wallet_logo.png</file>
         <file alias="MaiaBG">res/images/backg.png</file>
         <file alias="Small_logo">res/images/maia60x60.png</file>
         <file alias="tor_logo">res/images/tor.png</file>

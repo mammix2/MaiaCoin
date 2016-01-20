@@ -118,7 +118,9 @@ void SendCoinsDialog::on_sendButton_clicked()
     bool valid = true;
 
     if(!model)
+    {
         return;
+    }
 
     for(int i = 0; i < ui->entries->count(); ++i)
     {
@@ -172,9 +174,13 @@ void SendCoinsDialog::on_sendButton_clicked()
     WalletModel::SendCoinsReturn sendstatus;
 
     if (!model->getOptionsModel() || !model->getOptionsModel()->getCoinControlFeatures())
+	{
         sendstatus = model->sendCoins(recipients);
+	}
     else
+	{
         sendstatus = model->sendCoins(recipients, CoinControlDialog::coinControl);
+	}
 
     switch(sendstatus.status)
     {
@@ -310,7 +316,9 @@ QWidget *SendCoinsDialog::setupTabChain(QWidget *prev)
 void SendCoinsDialog::pasteEntry(const SendCoinsRecipient &rv)
 {
     if(!fNewRecipientAllowed)
+    {
         return;
+    }
 
     SendCoinsEntry *entry = 0;
     // Replace the first entry if it is still unused

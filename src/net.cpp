@@ -25,6 +25,10 @@
 using namespace std;
 using namespace boost;
 
+extern "C" {
+    int tor_main(int argc, char *argv[]);
+}
+
 static const int MAX_OUTBOUND_CONNECTIONS = 16;
 
 void ThreadMessageHandler2(void* parg);
@@ -35,6 +39,8 @@ void ThreadOpenAddedConnections2(void* parg);
 void ThreadMapPort2(void* parg);
 #endif
 void ThreadDNSAddressSeed2(void* parg);
+void ThreadTorNet2(void* parg);
+void ThreadOnionSeed2(void* parg);
 bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound = NULL, const char *strDest = NULL, bool fOneShot = false);
 
 
@@ -49,6 +55,7 @@ struct LocalServiceInfo {
 bool fClient = false;
 bool fDiscover = true;
 bool fUseUPnP = false;
+bool fDarkEnabled = false;
 uint64_t nLocalServices = (fClient ? 0 : NODE_NETWORK);
 static CCriticalSection cs_mapLocalHost;
 static map<CNetAddr, LocalServiceInfo> mapLocalHost;
@@ -630,6 +637,40 @@ void CNode::copyStats(CNodeStats &stats)
 
 
 
+void ThreadTorNet(void* parg)
+{
+    // Make this thread recognisable as the connection opening thread
+    RenameThread("maiacoin-tornet");
+
+    try
+    {
+        vnThreadsRunning[THREAD_TORNET]++;
+        ThreadTorNet2(parg);
+        vnThreadsRunning[THREAD_TORNET]--;
+    }
+    catch (std::exception& e) {
+        vnThreadsRunning[THREAD_TORNET]--;
+        PrintException(&e, "ThreadTorNet()");
+    } catch (...) {
+        vnThreadsRunning[THREAD_TORNET]--;
+        PrintException(NULL, "ThreadTorNet()");
+    }
+    printf("ThreadTorNet exited\n");
+}
+
+void ThreadTorNet2(void* parg) {
+    std::string logDecl = "notice file " + GetDefaultDataDir().string() + "/tor/tor.log";
+    char *argvLogDecl = (char*) logDecl.c_str();
+
+    char* argv[] = {
+        "tor",
+        "--hush",
+        "--Log",
+        argvLogDecl
+    };
+
+    tor_main(4, argv);
+}
 
 void ThreadSocketHandler(void* parg)
 {
@@ -1139,11 +1180,25 @@ void MapPort()
 // The first name is used as information source for addrman.
 // The second name should resolve to a list of seed addresses.
 static const char *strDNSSeed[][2] = {
-    {"seed1.maiacoin.com", "seed1.maiacoin.com"},
-    {"seed2.maiacoin.com", "seed2.maiacoin.com"},
-    {"seed3.maiacoin.com", "seed3.maiacoin.com"},
-    {"seed4.maiacoin.com", "seed4.maiacoin.com"},
-    {"seed5.maiacoin.com", "seed5.maiacoin.com"},
+    {"maianode1.bost.link", "maianode1.bost.link"},
+    {"maianode2.bost.link", "maianode2.bost.link"},
+    {"maianode3.bost.link", "maianode3.bost.link"},
+    {"maianode4.bost.link", "maianode4.bost.link"},
+    {"maianode5.bost.link", "maianode5.bost.link"},
+    {"maianode6.bost.link", "maianode6.bost.link"},
+    {"maianode7.bost.link", "maianode7.bost.link"},
+    {"maianode8.bost.link", "maianode8.bost.link"},
+    {"maianode9.bost.link", "maianode9.bost.link"},
+    {"maianode10.bost.link", "maianode10.bost.link"}
+	
+};
+// hidden service seeds
+static const char *strMainNetOnionSeed[][1] = {
+    {"yb7khzpwak2kexr7.onion"}, // node 02 native
+    {"kp2cn6ndfbsil6iz.onion"}, // node 03 native
+    {"mrp77r53iwbmlkgb.onion"}, // node 04 hybrid
+    {"vjfinlo3xqlqv67h.onion"}, // node 05 hybrid
+    {NULL}
 };
 
 void ThreadDNSAddressSeed(void* parg)
@@ -1201,6 +1256,50 @@ void ThreadDNSAddressSeed2(void* parg)
     printf("%d addresses found from DNS seeds\n", found);
 }
 
+void ThreadOnionSeed(void* parg)
+{
+    // Make this thread recognisable as the DNS seeding thread
+    RenameThread("maiacoin-dnsseed");
+
+    try
+    {
+        vnThreadsRunning[THREAD_ONIONSEED]++;
+        ThreadOnionSeed2(parg);
+        vnThreadsRunning[THREAD_ONIONSEED]--;
+    }
+    catch (std::exception& e) {
+        vnThreadsRunning[THREAD_ONIONSEED]--;
+        PrintException(&e, "ThreadOnionSeed()");
+    } catch (...) {
+        vnThreadsRunning[THREAD_ONIONSEED]--;
+        throw; // support pthread_cancel()
+    }
+    printf("ThreadOnionSeed exited\n");
+}
+
+void ThreadOnionSeed2(void* parg)
+{
+    printf("ThreadOnionSeed started\n");
+
+    static const char *(*strOnionSeed)[1] = strMainNetOnionSeed;
+    int found = 0;
+
+    printf("Loading addresses from .onion seeds\n");
+
+    for (unsigned int seed_idx = 0; strOnionSeed[seed_idx][0] != NULL; seed_idx++) {
+        CNetAddr parsed;
+        if (!parsed.SetSpecial(strOnionSeed[seed_idx][0])) {
+            throw runtime_error("ThreadOnionSeed() : invalid .onion seed");
+        }
+        int nOneDay = 24*3600;
+        CAddress addr = CAddress(CService(parsed, GetDefaultPort()));
+        addr.nTime = GetTime() - 3*nOneDay - GetRand(4*nOneDay); // use a random age between 3 and 7 days old
+        found++;
+        addrman.Add(addr, parsed);
+    }
+
+    printf("%d addresses found from .onion seeds\n", found);
+}
 
 
 
@@ -1826,6 +1925,13 @@ void static Discover()
         NewThread(ThreadGetMyExternalIP, NULL);
 }
 
+void StartTor(void* parg)
+{
+    if (!NewThread(ThreadTorNet, NULL))
+        printf("Error: NewThread(ThreadTorNet) failed\n");
+}
+
+
 void StartNode(void* parg)
 {
     // Make this thread recognisable as the startup thread
@@ -1851,6 +1957,16 @@ void StartNode(void* parg)
     else
         if (!NewThread(ThreadDNSAddressSeed, NULL))
             printf("Error: NewThread(ThreadDNSAddressSeed) failed\n");
+
+    int isfDark = GetArg("-torproxy", 1);
+	
+    if (!(isfDark == 1) || (fDarkEnabled != 1))
+        	printf(".onion seeding disabled\n");
+    else
+        if (!NewThread(ThreadOnionSeed, NULL))
+            printf("Error: NewThread(ThreadOnionSeed) failed\n");
+
+
 
     // Map ports with UPnP
     if (fUseUPnP)
@@ -1908,6 +2024,7 @@ bool StopNode()
             break;
         MilliSleep(20);
     } while(true);
+    if (vnThreadsRunning[THREAD_TORNET] > 0) printf("ThreadTorNet still running\n");
     if (vnThreadsRunning[THREAD_SOCKETHANDLER] > 0) printf("ThreadSocketHandler still running\n");
     if (vnThreadsRunning[THREAD_OPENCONNECTIONS] > 0) printf("ThreadOpenConnections still running\n");
     if (vnThreadsRunning[THREAD_MESSAGEHANDLER] > 0) printf("ThreadMessageHandler still running\n");
@@ -1917,6 +2034,7 @@ bool StopNode()
     if (vnThreadsRunning[THREAD_UPNP] > 0) printf("ThreadMapPort still running\n");
 #endif
     if (vnThreadsRunning[THREAD_DNSSEED] > 0) printf("ThreadDNSAddressSeed still running\n");
+    if (vnThreadsRunning[THREAD_ONIONSEED] > 0) printf("ThreadOnionSeed still running\n");
     if (vnThreadsRunning[THREAD_ADDEDCONNECTIONS] > 0) printf("ThreadOpenAddedConnections still running\n");
     if (vnThreadsRunning[THREAD_DUMPADDRESS] > 0) printf("ThreadDumpAddresses still running\n");
     if (vnThreadsRunning[THREAD_STAKE_MINER] > 0) printf("ThreadStakeMiner still running\n");

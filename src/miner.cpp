@@ -7,7 +7,7 @@
 #include "txdb.h"
 #include "miner.h"
 #include "kernel.h"
-#include "main.h"
+#include "pow_control.h"
 
 using namespace std;
 

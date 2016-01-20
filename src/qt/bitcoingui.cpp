@@ -19,8 +19,6 @@
 #include "addresstablemodel.h"
 #include "transactionview.h"
 #include "overviewpage.h"
-#include "statisticspage.h"
-#include "blockbrowser.h"
 #include "bitcoinunits.h"
 #include "guiconstants.h"
 #include "askpassphrasedialog.h"
@@ -28,6 +26,7 @@
 #include "guiutil.h"
 #include "rpcconsole.h"
 #include "wallet.h"
+#include "net.h"
 
 #ifdef Q_OS_MAC
 #include "macdockiconhandler.h"
@@ -59,9 +58,6 @@
 #include <QDragEnterEvent>
 #include <QUrl>
 #include <QStyle>
-#include <QStyleFactory>
-#include <QTextStream>
-#include <QTextDocument>
 
 #include <iostream>
 
@@ -83,11 +79,10 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     notificator(0),
     rpcConsole(0)
 {
+    resize(800, 600);
+    setWindowTitle(tr("MaiaCoin Core wallet"));
 
 
-
-    resize(1000, 600);
-    setWindowTitle(tr("MaiaCoin") + " - " + tr("Wallet"));
 #ifndef Q_OS_MAC
     qApp->setWindowIcon(QIcon(":icons/bitcoin"));
     setWindowIcon(QIcon(":icons/bitcoin"));
@@ -126,9 +121,6 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 #endif
     // Create tabs
     overviewPage = new OverviewPage();
-	statisticsPage = new StatisticsPage(this);
-	blockBrowser = new BlockBrowser(this);
-
     transactionsPage = new QWidget(this);
     QVBoxLayout *vbox = new QVBoxLayout();
     transactionView = new TransactionView(this);
@@ -146,8 +138,6 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     centralWidget = new QStackedWidget(this);
     centralWidget->setObjectName("central");
     centralWidget->addWidget(overviewPage);
-	centralWidget->addWidget(statisticsPage);
-	centralWidget->addWidget(blockBrowser);
     centralWidget->addWidget(transactionsPage);
     centralWidget->addWidget(addressBookPage);
     centralWidget->addWidget(receiveCoinsPage);
@@ -245,11 +235,6 @@ void BitcoinGUI::createActions()
     overviewAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_1));
     tabGroup->addAction(overviewAction);
 
-    statisticsAction = new QAction(QIcon(":/icons/statistics"), tr("&Statistics"), this);
-    statisticsAction->setToolTip(tr("View statistics"));
-    statisticsAction->setCheckable(true);
-    statisticsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_8));
-    tabGroup->addAction(statisticsAction);
     sendCoinsAction = new QAction(QIcon(":/icons/send"), tr("&Send coins"), this);
     sendCoinsAction->setToolTip(tr("Send coins to a MaiaCoin address"));
     sendCoinsAction->setCheckable(true);
@@ -274,18 +259,8 @@ void BitcoinGUI::createActions()
     addressBookAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
     tabGroup->addAction(addressBookAction);
 
-    blockAction = new QAction(QIcon(":/icons/block"), tr("&Block Explorer"), this);
-    blockAction->setToolTip(tr("Explore the BlockChain"));
-    blockAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_6));
-    blockAction->setCheckable(true);
-    tabGroup->addAction(blockAction);
-
-    connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
-    connect(blockAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(gotoOverviewPage()));
-    connect(statisticsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
-    connect(statisticsAction, SIGNAL(triggered()), this, SLOT(gotoStatisticsPage()));
     connect(sendCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(sendCoinsAction, SIGNAL(triggered()), this, SLOT(gotoSendCoinsPage()));
     connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
@@ -366,6 +341,13 @@ void BitcoinGUI::createMenuBar()
     file->addSeparator();
     file->addAction(quitAction);
 
+    QMenu *menu = appMenuBar->addMenu(tr("&Menu"));
+    menu->addAction(overviewAction);
+    menu->addAction(sendCoinsAction);
+    menu->addAction(receiveCoinsAction);
+    menu->addAction(historyAction);
+    menu->addAction(addressBookAction);
+	
     QMenu *settings = appMenuBar->addMenu(tr("&Settings"));
     settings->addAction(encryptWalletAction);
     settings->addAction(changePassphraseAction);
@@ -390,10 +372,8 @@ void BitcoinGUI::createToolBars(QToolBar* toolbar)
     toolbar->addAction(receiveCoinsAction);
     toolbar->addAction(historyAction);
     toolbar->addAction(addressBookAction);
-
-	toolbar->addAction(statisticsAction);
-	toolbar->addAction(blockAction);
     toolbar->addAction(exportAction);
+
 }
 
 void BitcoinGUI::setClientModel(ClientModel *clientModel)
@@ -413,7 +393,7 @@ void BitcoinGUI::setClientModel(ClientModel *clientModel)
 #endif
             if(trayIcon)
             {
-                trayIcon->setToolTip(tr("MaiaCoin client") + QString(" ") + tr("[testnet]"));
+                trayIcon->setToolTip(tr("MaiaCoin core - ") + ("client") + QString(" ") + tr("[testnet]"));
                 trayIcon->setIcon(QIcon(":/icons/toolbar_testnet"));
                 toggleHideAction->setIcon(QIcon(":/icons/toolbar_testnet"));
             }
@@ -453,8 +433,6 @@ void BitcoinGUI::setWalletModel(WalletModel *walletModel)
         receiveCoinsPage->setModel(walletModel->getAddressTableModel());
         sendCoinsPage->setModel(walletModel);
         signVerifyMessageDialog->setModel(walletModel);
-		statisticsPage->setModel(clientModel);
-		blockBrowser->setModel(clientModel);
 
         setEncryptionStatus(walletModel->getEncryptionStatus());
         connect(walletModel, SIGNAL(encryptionStatusChanged(int)), this, SLOT(setEncryptionStatus(int)));
@@ -475,7 +453,7 @@ void BitcoinGUI::createTrayIcon()
     trayIcon = new QSystemTrayIcon(this);
     trayIconMenu = new QMenu(this);
     trayIcon->setContextMenu(trayIconMenu);
-    trayIcon->setToolTip(tr("MaiaCoin client"));
+    trayIcon->setToolTip(tr("MaiaCoin Core - client"));
     trayIcon->setIcon(QIcon(":/icons/toolbar"));
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
@@ -753,24 +731,9 @@ void BitcoinGUI::gotoOverviewPage()
 
     exportAction->setEnabled(false);
     disconnect(exportAction, SIGNAL(triggered()), 0, 0);
-}
-void BitcoinGUI::gotoBlockBrowser()
-{
-    blockAction->setChecked(true);
-    centralWidget->setCurrentWidget(blockBrowser);
-
-    exportAction->setEnabled(false);
-    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
+    exportAction->setEnabled(true);
 }
 
-void BitcoinGUI::gotoStatisticsPage()
-{
-    statisticsAction->setChecked(true);
-    centralWidget->setCurrentWidget(statisticsPage);
-
-    exportAction->setEnabled(false);
-    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
-}
 
 void BitcoinGUI::gotoHistoryPage()
 {

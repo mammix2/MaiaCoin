@@ -9,6 +9,7 @@
 #include "init.h"
 #include "util.h"
 #include "ui_interface.h"
+#include "tor/anonymize.h"
 #include "checkpoints.h"
 #include "pow_control.h"
 #include <boost/filesystem.hpp>
@@ -36,6 +37,9 @@ unsigned int nDerivationMethodIndex;
 unsigned int nMinerSleep;
 bool fUseFastIndex;
 enum Checkpoints::CPMode CheckpointsMode;
+CService addrOnion;
+unsigned short const onion_port = 9090;
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -239,7 +243,6 @@ std::string HelpMessage()
         "  -timeout=<n>           " + _("Specify connection timeout in milliseconds (default: 5000)") + "\n" +
         "  -proxy=<ip:port>       " + _("Connect through socks proxy") + "\n" +
         "  -socks=<n>             " + _("Select the version of socks proxy to use (4-5, default: 5)") + "\n" +
-        "  -tor=<ip:port>         " + _("Use proxy to reach tor hidden services (default: same as -proxy)") + "\n"
         "  -dns                   " + _("Allow DNS lookups for -addnode, -seednode and -connect") + "\n" +
         "  -port=<port>           " + _("Listen for connections on <port> (default: 9897 or testnet: 19897)") + "\n" +
         "  -maxconnections=<n>    " + _("Maintain at most <n> connections to peers (default: 125)") + "\n" +
@@ -260,6 +263,8 @@ std::string HelpMessage()
         "  -bantime=<n>           " + _("Number of seconds to keep misbehaving peers from reconnecting (default: 86400)") + "\n" +
         "  -maxreceivebuffer=<n>  " + _("Maximum per-connection receive buffer, <n>*1000 bytes (default: 5000)") + "\n" +
         "  -maxsendbuffer=<n>     " + _("Maximum per-connection send buffer, <n>*1000 bytes (default: 1000)") + "\n" +
+        "  -torproxy=<n>         " + _("Find peers using .onion seeds over the Tor network (use -torproxy=<n> against binary, torproxy=<n> in .conf. default is 0, also disabled when using -connect)") + "\n" +
+
 #ifdef USE_UPNP
 #if USE_UPNP
         "  -upnp                  " + _("Use UPnP to map the listening port (default: 1 when listening)") + "\n" +
@@ -397,7 +402,7 @@ bool AppInit2()
     }
 
     if (mapArgs.count("-connect") && mapMultiArgs["-connect"].size() > 0) {
-        // when only connecting to trusted nodes, do not seed via DNS, or listen by default
+        // when only connecting to trusted nodes, do not seed via DNS, Tor, or listen by default
         SoftSetBoolArg("-dnsseed", false);
         SoftSetBoolArg("-listen", false);
     }
@@ -429,10 +434,16 @@ bool AppInit2()
 
     // -debug implies fDebug*
     if (fDebug)
-        fDebugNet = true;
-    else
-        fDebugNet = GetBoolArg("-debugnet");
+    {
+        fDebugNet  = true;
 
+    } else
+    {
+        fDebugNet  = GetBoolArg("-debugnet");
+
+    }
+
+    
     bitdb.SetDetach(GetBoolArg("-detachdb", false));
 
 #if !defined(WIN32) && !defined(QT_GUI)
@@ -569,10 +580,27 @@ bool AppInit2()
 
     // ********************************************************* Step 6: network initialization
 
+    uiInterface.InitMessage(_("Initialising Tor Proxy..."));
+    printf("Initialising Tor Network...\n");
+
     int nSocksVersion = GetArg("-socks", 5);
 
     if (nSocksVersion != 4 && nSocksVersion != 5)
         return InitError(strprintf(_("Unknown -socks proxy version requested: %i"), nSocksVersion));
+
+    int isfDark = GetArg("-torproxy", 1);
+
+    if (isfDark == 1)
+    {
+        std::set<enum Network> nets;
+        nets.insert(NET_TOR);
+
+        for (int n = 0; n < NET_MAX; n++) {
+            enum Network net = (enum Network)n;
+            if (!nets.count(net))
+                SetLimited(net);
+        }
+    }
 
     if (mapArgs.count("-onlynet")) {
         std::set<enum Network> nets;
@@ -616,13 +644,20 @@ bool AppInit2()
 
     // -tor can override normal proxy, -notor disables tor entirely
     if (!(mapArgs.count("-tor") && mapArgs["-tor"] == "0") && (fProxy || mapArgs.count("-tor"))) {
-        CService addrOnion;
+    CService addrOnion;
+
         if (!mapArgs.count("-tor"))
             addrOnion = addrProxy;
         else
-            addrOnion = CService(mapArgs["-tor"], 9050);
+        addrOnion = CService(mapArgs["-tor"], onion_port);
+
         if (!addrOnion.IsValid())
             return InitError(strprintf(_("Invalid -tor address: '%s'"), mapArgs["-tor"].c_str()));
+    } else {
+        addrOnion = CService("127.0.0.1", onion_port);
+    }
+
+    if (true) {
         SetProxy(NET_TOR, addrOnion, 5);
         SetReachable(NET_TOR);
     }
@@ -631,6 +666,7 @@ bool AppInit2()
     fNoListen = !GetBoolArg("-listen", true);
     fDiscover = GetBoolArg("-discover", true);
     fNameLookup = GetBoolArg("-dns", true);
+    fDarkEnabled = GetArg("-torproxy", 1);
 #ifdef USE_UPNP
     fUseUPnP = GetBoolArg("-upnp", USE_UPNP);
 #endif
@@ -655,10 +691,31 @@ bool AppInit2()
 #endif
             if (!IsLimited(NET_IPV4))
                 fBound |= Bind(CService(inaddr_any, GetListenPort()), !fBound);
-        }
+            }
+
+            if (isfDark == 1)
+            {
+                CService addrBind;
+                if (!Lookup("127.0.0.1", addrBind, GetListenPort(), false))
+                    return InitError(strprintf(_("Cannot resolve binding address: '%s'"), "127.0.0.1"));
+
+                fBound |= Bind(addrBind);
+            }
+
         if (!fBound)
             return InitError(_("Failed to listen on any port. Use -listen=0 if you want this."));
     }
+
+    if (isfDark == 1)
+    {
+        if (!NewThread(StartTor, NULL))
+                InitError(_("Error: could not start tor node"));
+        wait_initialized();
+        uiInterface.InitMessage(_("Initialising Tor Network..."));
+        printf("Initialising Tor Network...\n");
+    }
+
+
 
     if (mapArgs.count("-externalip"))
     {
@@ -668,6 +725,20 @@ bool AppInit2()
                 return InitError(strprintf(_("Cannot resolve -externalip address: '%s'"), strAddr.c_str()));
             AddLocal(CService(strAddr, GetListenPort(), fNameLookup), LOCAL_MANUAL);
         }
+    }
+
+    if (isfDark == 1)
+    {
+        string automatic_onion;
+        filesystem::path const hostname_path = GetDefaultDataDir() / "onion" / "hostname";
+
+        if (!filesystem::exists(hostname_path)) {
+            return InitError(_("No external address found."));
+        }
+
+        ifstream file(hostname_path.string().c_str());
+        file >> automatic_onion;
+        AddLocal(CService(automatic_onion, GetListenPort(), fNameLookup), LOCAL_MANUAL);
     }
 
     if (mapArgs.count("-reservebalance")) // maiacoin: reserve balance amount

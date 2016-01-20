@@ -22,7 +22,7 @@ BEGIN
             VALUE "FileDescription",    "MaiaCoin-Qt (OSS GUI client for MaiaCoin)"
             VALUE "FileVersion",        VER_FILEVERSION_STR
             VALUE "InternalName",       "maiacoin-qt"
-            VALUE "LegalCopyright",     "2014 The MaiaCoin developers"
+            VALUE "LegalCopyright",     "2014-2016 The MaiaCoin developers"
             VALUE "LegalTrademarks1",   "Distributed under the MIT/X11 software license, see the accompanying file COPYING or http://www.opensource.org/licenses/mit-license.php."
             VALUE "OriginalFilename",   "maiacoin-qt.exe"
             VALUE "ProductName",        "MaiaCoin-Qt"

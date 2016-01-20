@@ -6,6 +6,7 @@
 
 #include "kernel.h"
 #include "txdb.h"
+#include "checkblocks.h"
 
 using namespace std;
 
@@ -20,6 +21,8 @@ static std::map<int, unsigned int> mapStakeModifierCheckpoints =
         ( 0, 0x0e00670bu )
         ( 142000, 0xc4676505u )
         ( 167000, 0xdd066dd1u )
+		( 650000, 0x26900ed0u )
+        ( 680000, 0x1c70d09du )
 
     ;
 

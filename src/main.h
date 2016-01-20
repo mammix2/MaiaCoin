@@ -11,6 +11,7 @@
 #include "script.h"
 #include "scrypt.h"
 #include "hashblock.h"
+#include "checkblocks.h"
 
 #include <list>
 
@@ -26,6 +27,7 @@ class CInv;
 class CRequestTracker;
 class CNode;
 
+static const int LAST_OLD_POS_BLOCK = 700000;
 static const unsigned int MAX_BLOCK_SIZE = 1000000;
 static const unsigned int MAX_BLOCK_SIZE_GEN = MAX_BLOCK_SIZE/2;
 static const unsigned int MAX_BLOCK_SIGOPS = MAX_BLOCK_SIZE/50;
@@ -35,7 +37,8 @@ static const int64_t MIN_TX_FEE = 10000;
 static const int64_t MIN_RELAY_TX_FEE = MIN_TX_FEE;
 static const int64_t MAX_MONEY = 40000000 * COIN;
 static const int64_t COIN_YEAR_REWARD = 1 * CENT; // 1% per year
-static const int64_t MAX_MINT_PROOF_OF_STAKE = 0.05 * COIN;	// 5% annual interest
+static const int64_t POS_STAKE_REWARD = 0.1 * COIN; // 10% annual interest
+static const int V4_CHAIN_PARAMS_TIME = 1455570000; // V4 chain switch
 
 #define FOUNDATION "MBKVCNHtGHdtxA5jfpYnaibCeYR25UpwUY"
 #define FOUNDATION_TEST "mnkAosicqQVunBvc3jc5KW2c97NestS2WF"
@@ -50,13 +53,23 @@ static const int fHaveUPnP = true;
 static const int fHaveUPnP = false;
 #endif
 
-static const uint256 hashGenesisBlock("00000a721a62a6e081c6440a07b0dd0b7918d2842debe19d1ad25411ea1a4bfd");
-static const uint256 hashGenesisBlockTestNet("0000b2705c66c4c4031e1366eb6d8d785eb060b3a0b6b9802b97e2263bb93587");
-static const uint256 CheckBlock1 ("0bbd474c40f6263af447b03dca2f25818d3f57b9bc0b03542bf1e1c098e81668");
-static const uint256 CheckBlock2 ("d134084cfd4b0718c415b8680ad77ae9f210a6ffbbc88328268f4d1f9551a2d1");
+inline int64_t PastDrift(int64_t nTime)   {
+    if (nTime < V4_CHAIN_PARAMS_TIME){
+        return nTime - 24 * 60 * 60;
+        }
+    else {
+        return nTime - 10 * 60; // New time drift maximum
+        }
+}
 
-inline int64_t PastDrift(int64_t nTime)   { return nTime - 24 * 60 * 60; } // up to 1 day from the past
-inline int64_t FutureDrift(int64_t nTime) { return nTime + 24 * 60 * 60; } // up to 1 day from the future
+inline int64_t FutureDrift(int64_t nTime) {
+    if (nTime < V4_CHAIN_PARAMS_TIME){
+        return nTime + 24 * 60 * 60;
+        }
+    else {
+        return nTime + 10 * 60; // New time drift maximum
+        }
+}
 
 extern int64_t devCoin;
 extern CScript COINBASE_FLAGS;

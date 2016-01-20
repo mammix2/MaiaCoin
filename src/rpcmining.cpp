@@ -68,8 +68,6 @@ Value getmininginfo(const Array& params, bool fHelp)
     weight.push_back(Pair("maximum",    (uint64_t)nMaxWeight));
     weight.push_back(Pair("combined",  (uint64_t)nWeight));
     obj.push_back(Pair("stakeweight", weight));
-
-    obj.push_back(Pair("stakeinterest",    (uint64_t)COIN_YEAR_REWARD));
     obj.push_back(Pair("testnet",       fTestNet));
     return obj;
 }
@@ -126,13 +124,17 @@ Value getworkex(const Array& params, bool fHelp)
     if (GetBoolArg("-testnet")){
         if (pindexBest->nHeight >= P1_End_TestNet && pindexBest->nHeight < P2_Start_TestNet){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
-        } else if (pindexBest->nHeight > P2_End_TestNet){
+        } else if (pindexBest->nHeight > P2_End_TestNet && pindexBest->nHeight < P3_Start_TestNet){
+            throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
+        } else if (pindexBest->nHeight > P3_End_TestNet){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
         }
     }else {
         if (pindexBest->nHeight >= P1_End && pindexBest->nHeight < P2_Start){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
-        } else if (pindexBest->nHeight > P2_End){
+        } else if (pindexBest->nHeight > P2_End && pindexBest->nHeight < P3_Start){
+            throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
+        } else if (pindexBest->nHeight > P3_End){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
         }
     }
@@ -272,13 +274,17 @@ Value getwork(const Array& params, bool fHelp)
     if (GetBoolArg("-testnet")){
         if (pindexBest->nHeight >= P1_End_TestNet && pindexBest->nHeight < P2_Start_TestNet){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
-        } else if (pindexBest->nHeight > P2_End_TestNet){
+        } else if (pindexBest->nHeight > P2_End_TestNet && pindexBest->nHeight < P3_Start_TestNet){
+            throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
+        } else if (pindexBest->nHeight > P3_End_TestNet){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
         }
     }else {
         if (pindexBest->nHeight >= P1_End && pindexBest->nHeight < P2_Start){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
-        } else if (pindexBest->nHeight > P2_End){
+        } else if (pindexBest->nHeight > P2_End && pindexBest->nHeight < P3_Start){
+            throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
+        } else if (pindexBest->nHeight > P3_End){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
         }
     }
@@ -427,13 +433,17 @@ Value getblocktemplate(const Array& params, bool fHelp)
     if (GetBoolArg("-testnet")){
         if (pindexBest->nHeight >= P1_End_TestNet && pindexBest->nHeight < P2_Start_TestNet){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
-        } else if (pindexBest->nHeight > P2_End_TestNet){
+        } else if (pindexBest->nHeight > P2_End_TestNet && pindexBest->nHeight < P3_Start_TestNet){
+            throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
+        } else if (pindexBest->nHeight > P3_End_TestNet){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
         }
     }else {
         if (pindexBest->nHeight >= P1_End && pindexBest->nHeight < P2_Start){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
-        } else if (pindexBest->nHeight > P2_End){
+        } else if (pindexBest->nHeight > P2_End && pindexBest->nHeight < P3_Start){
+            throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
+        } else if (pindexBest->nHeight > P3_End){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
         }
     }
@@ -536,8 +546,8 @@ Value getblocktemplate(const Array& params, bool fHelp)
     result.push_back(Pair("transactions", transactions));
     result.push_back(Pair("coinbaseaux", aux));
     result.push_back(Pair("coinbasevalue", (int64_t)pblock->vtx[0].vout[0].nValue + (int64_t)pblock->vtx[0].vout[1].nValue));
-//    result.push_back(Pair("charityvalue", (int64_t)pblock->vtx[0].vout[0].nValue));
-//    result.push_back(Pair("target", hashTarget.GetHex()));
+    result.push_back(Pair("charityvalue", (int64_t)pblock->vtx[0].vout[0].nValue));
+    result.push_back(Pair("target", hashTarget.GetHex()));
     result.push_back(Pair("mintime", (int64_t)pindexPrev->GetPastTimeLimit()+1));
     result.push_back(Pair("mutable", aMutable));
     result.push_back(Pair("noncerange", "00000000ffffffff"));

@@ -6,6 +6,7 @@
 #include <boost/foreach.hpp>
 
 #include "checkpoints.h"
+#include "checkblocks.h"
 
 #include "txdb.h"
 #include "main.h"
@@ -27,6 +28,8 @@ namespace Checkpoints
         ( 0, hashGenesisBlock )
         ( 142000, CheckBlock1 )
         ( 167000, CheckBlock2 )
+		( 650000, CheckBlock3 )
+        ( 680000, CheckBlock4 )
     ;
 
     // TestNet has no checkpoints
@@ -349,7 +352,7 @@ namespace Checkpoints
 }
 
 // maiacoin: sync-checkpoint master key
-const std::string CSyncCheckpoint::strMasterPubKey = "04a18357665ed7a802dcf252ef528d3dc786da38653b51d1ab8e9f4820b55aca807892a056781967315908ac205940ec9d6f2fd0a85941966971eac7e475a27826";
+const std::string CSyncCheckpoint::strMasterPubKey = "04c9614dfd7b17fe5a0a4c4153fb9e8be87b7c0f08735dd8c1807bc7b50d75b282ad3c8a7c311bd19eee9a1fcd48630b1d0e64b067b9055ebf2e59bf160b74c564";
 
 std::string CSyncCheckpoint::strMasterPrivKey = "";
 
