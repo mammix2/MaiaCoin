@@ -580,7 +580,7 @@ bool AppInit2()
 
     // ********************************************************* Step 6: network initialization
 
-    uiInterface.InitMessage(_("Initialising Tor Proxy..."));
+    uiInterface.InitMessage(_("Initialising Tor Network..."));
     printf("Initialising Tor Network...\n");
 
     int nSocksVersion = GetArg("-socks", 5);

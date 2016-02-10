@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
+    <width>757</width>
     <height>500</height>
    </rect>
   </property>
@@ -360,7 +360,7 @@
     <widget class="QFrame" name="frame">
      <property name="minimumSize">
       <size>
-       <width>0</width>
+       <width>182</width>
        <height>40</height>
       </size>
      </property>
@@ -376,10 +376,10 @@
         <x>10</x>
         <y>0</y>
         <width>781</width>
-        <height>41</height>
+        <height>47</height>
        </rect>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayoutPanel" stretch="0,0,0,0,0">
+      <layout class="QHBoxLayout" name="horizontalLayoutPanel" stretch="0,0,0,0">
        <property name="spacing">
         <number>14</number>
        </property>

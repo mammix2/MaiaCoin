@@ -1180,16 +1180,16 @@ void MapPort()
 // The first name is used as information source for addrman.
 // The second name should resolve to a list of seed addresses.
 static const char *strDNSSeed[][2] = {
-    {"maianode1.bost.link", "maianode1.bost.link"},
-    {"maianode2.bost.link", "maianode2.bost.link"},
-    {"maianode3.bost.link", "maianode3.bost.link"},
-    {"maianode4.bost.link", "maianode4.bost.link"},
-    {"maianode5.bost.link", "maianode5.bost.link"},
-    {"maianode6.bost.link", "maianode6.bost.link"},
-    {"maianode7.bost.link", "maianode7.bost.link"},
-    {"maianode8.bost.link", "maianode8.bost.link"},
-    {"maianode9.bost.link", "maianode9.bost.link"},
-    {"maianode10.bost.link", "maianode10.bost.link"}
+    {"node1.bost.link", "node1.bost.link"},
+    {"node2.bost.link", "node2.bost.link"},
+    {"node3.bost.link", "node3.bost.link"},
+    {"node4.bost.link", "node4.bost.link"},
+    {"node5.bost.link", "node5.bost.link"},
+    {"node6.bost.link", "node6.bost.link"},
+    {"node7.bost.link", "node7.bost.link"},
+    {"node8.bost.link", "node8.bost.link"},
+    {"node9.bost.link", "node9.bost.link"},
+    {"node10.bost.link", "node10.bost.link"},
 	
 };
 // hidden service seeds

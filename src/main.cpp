@@ -1003,7 +1003,7 @@ int64_t GetProofOfStakeReward(int64_t nCoinAge, int64_t nFees)
     if(pindexBest->nHeight < LAST_OLD_POS_BLOCK) {
         nSubsidy = nCoinAge * POS_STAKE_REWARD / 365 / COIN; // original PoS reward
     } else {
-        nSubsidy = nCoinAge * POS_STAKE_REWARD / 365; // PoS reward on V4 chain
+        nSubsidy = nCoinAge * POS_STAKE_REWARD / 365; // PoS reward on V2 chain
     }
 
 
@@ -1076,7 +1076,7 @@ unsigned int static GetNextWorkRequired_legacy(const CBlockIndex* pindexLast)
         return pindexLast->nBits;
     }
 
-    // Genesiscoin: This fixes an issue where a 51% attack can change difficulty at will.
+    // This fixes an issue where a 51% attack can change difficulty at will.
     // Go back the full period unless it's the first retarget after genesis. Code courtesy of Art Forz
     int blockstogoback = nInterval-1;
     if ((pindexLast->nHeight+1) != nInterval)
@@ -1132,7 +1132,7 @@ static unsigned int GetNextTargetRequired_DGW(const CBlockIndex* pindexLast, boo
 
     // target change every block
     // retarget with exponential moving toward target spacing
-    // Includes MaiaCoin fix for wrong retargeting difficulty by Mammix2
+    // Includes fix for wrong retargeting difficulty by Mammix2
 
     CBigNum bnNew;
     bnNew.SetCompact(pindexPrev->nBits);
@@ -2109,7 +2109,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
     // These are checks that are independent of context
     // that can be verified before saving an orphan block.
     if(pindexBest != NULL && pindexBest->nHeight > 1)
-        nCoinbaseMaturity = 100; //coinbase maturity change to 180 blocks
+        nCoinbaseMaturity = 100; //coinbase maturity
     // Size limits
     if (vtx.empty() || vtx.size() > MAX_BLOCK_SIZE || ::GetSerializeSize(*this, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE)
         return DoS(100, error("CheckBlock() : size limits failed"));

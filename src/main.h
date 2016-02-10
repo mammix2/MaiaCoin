@@ -35,11 +35,10 @@ static const unsigned int MAX_ORPHAN_TRANSACTIONS = MAX_BLOCK_SIZE/100;
 static const unsigned int MAX_INV_SZ = 50000;
 static const int64_t MIN_TX_FEE = 10000;
 static const int64_t MIN_RELAY_TX_FEE = MIN_TX_FEE;
-static const int64_t MAX_MONEY = 40000000 * COIN;
+static const int64_t MAX_MONEY = 400000000 * COIN;
 static const int64_t COIN_YEAR_REWARD = 1 * CENT; // 1% per year
 static const int64_t POS_STAKE_REWARD = 0.1 * COIN; // 10% annual interest
-static const int V4_CHAIN_PARAMS_TIME = 1455570000; // V4 chain switch
-
+static const int V2_CHAIN_PARAMS_TIME = 1455570000;
 #define FOUNDATION "MBKVCNHtGHdtxA5jfpYnaibCeYR25UpwUY"
 #define FOUNDATION_TEST "mnkAosicqQVunBvc3jc5KW2c97NestS2WF"
 
@@ -54,7 +53,7 @@ static const int fHaveUPnP = false;
 #endif
 
 inline int64_t PastDrift(int64_t nTime)   {
-    if (nTime < V4_CHAIN_PARAMS_TIME){
+    if (nTime < V2_CHAIN_PARAMS_TIME){
         return nTime - 24 * 60 * 60;
         }
     else {
@@ -63,7 +62,7 @@ inline int64_t PastDrift(int64_t nTime)   {
 }
 
 inline int64_t FutureDrift(int64_t nTime) {
-    if (nTime < V4_CHAIN_PARAMS_TIME){
+    if (nTime < V2_CHAIN_PARAMS_TIME){
         return nTime + 24 * 60 * 60;
         }
     else {
@@ -920,7 +919,7 @@ public:
 
     uint256 GetHash() const
     {
-        return HashSph(BEGIN(nVersion), END(nNonce));
+        return Hash15(BEGIN(nVersion), END(nNonce));
     }
 
     int64_t GetBlockTime() const

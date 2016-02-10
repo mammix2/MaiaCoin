@@ -7,7 +7,7 @@ TEMPLATE = app
 DEFINES += FN1 FN2
 FN1 = maiacoin-core
 FN2 = -qt-v
-VERSION = 4.0.0.1
+VERSION = 4.4.0.0
 TARGET = $$FN1$$FN2$$VERSION
 INCLUDEPATH += src src/json \
     src/qt \
@@ -551,15 +551,15 @@ isEmpty(BOOST_THREAD_LIB_SUFFIX) {
 }
 
 isEmpty(BDB_LIB_PATH) {
-    macx:BDB_LIB_PATH = /usr/local/Cellar/berkeley-db4/4.8.30/lib
+#    macx:BDB_LIB_PATH = /usr/local/Cellar/berkeley-db4/4.8.30/lib
 }
 
 isEmpty(BDB_LIB_SUFFIX) {
-    macx:BDB_LIB_SUFFIX = -4.8
+#    macx:BDB_LIB_SUFFIX = -4.8
 }
 
 isEmpty(BDB_INCLUDE_PATH) {
-    macx:BDB_INCLUDE_PATH = /usr/local/Cellar/berkeley-db4/4.8.30/include
+#    macx:BDB_INCLUDE_PATH = /usr/local/Cellar/berkeley-db4/4.8.30/include
 }
 
 isEmpty(BOOST_LIB_PATH) {

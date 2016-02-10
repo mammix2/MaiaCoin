@@ -20,7 +20,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabSignMessage">
       <attribute name="title">
@@ -193,8 +193,8 @@
           <widget class="QLabel" name="statusLabel_SM">
            <property name="font">
             <font>
-             <weight>75</weight>
-             <bold>true</bold>
+             <weight>50</weight>
+             <bold>false</bold>
             </font>
            </property>
            <property name="text">
@@ -339,8 +339,8 @@
           <widget class="QLabel" name="statusLabel_VM">
            <property name="font">
             <font>
-             <weight>75</weight>
-             <bold>true</bold>
+             <weight>50</weight>
+             <bold>false</bold>
             </font>
            </property>
            <property name="text">

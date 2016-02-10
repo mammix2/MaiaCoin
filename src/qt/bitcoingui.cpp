@@ -27,6 +27,7 @@
 #include "guiutil.h"
 #include "rpcconsole.h"
 #include "wallet.h"
+#include "init.h"
 #include "net.h"
 
 #ifdef Q_OS_MAC
@@ -83,8 +84,17 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     notificator(0),
     rpcConsole(0)
 {
+
+#ifdef Q_OS_MAC
+    resize(960, 610);
+    setWindowTitle(tr("MaiaCoin Core wallet - Mac"));
+#elif _WIN32
     resize(865, 600);
-    setWindowTitle(tr("MaiaCoin Core wallet"));
+    setWindowTitle(tr("MaiaCoin Core wallet - Windows"));
+#else
+    resize(1020, 650);
+    setWindowTitle(tr("MaiaCoin Core wallet - Linux"));
+#endif
 
 
 #ifndef Q_OS_MAC
@@ -171,11 +181,14 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     labelEncryptionIcon = new QLabel();
     labelStakingIcon = new QLabel();
     labelConnectionsIcon = new QLabel();
+    labelOnionIcon = new QLabel ();
     labelBlocksIcon = new QLabel();
     frameBlocksLayout->addStretch();
     frameBlocksLayout->addWidget(labelEncryptionIcon);
     frameBlocksLayout->addStretch();
     frameBlocksLayout->addWidget(labelStakingIcon);
+    frameBlocksLayout->addStretch();
+    frameBlocksLayout->addWidget(labelOnionIcon);
     frameBlocksLayout->addStretch();
     frameBlocksLayout->addWidget(labelConnectionsIcon);
     frameBlocksLayout->addStretch();
@@ -298,7 +311,11 @@ void BitcoinGUI::createActions()
     aboutAction = new QAction(QIcon(":/icons/bitcoin"), tr("&About MaiaCoin"), this);
     aboutAction->setToolTip(tr("Show information about MaiaCoin"));
     aboutAction->setMenuRole(QAction::AboutRole);
+#if QT_VERSION < 0x050000
     aboutQtAction = new QAction(QIcon(":/trolltech/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
+#else
+    aboutQtAction = new QAction(QIcon(":/qt-project.org/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
+#endif
     aboutQtAction->setToolTip(tr("Show information about Qt"));
     aboutQtAction->setMenuRole(QAction::AboutQtRole);
     optionsAction = new QAction(QIcon(":/icons/options"), tr("&Options..."), this);
@@ -548,6 +565,15 @@ void BitcoinGUI::setNumConnections(int count)
     }
     labelConnectionsIcon->setPixmap(QIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
     labelConnectionsIcon->setToolTip(tr("%n active connection(s) to MaiaCoin network", "", count));
+
+
+    if (fDarkEnabled)
+    {
+        labelOnionIcon->setPixmap(QIcon(":/icons/onion_small").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        labelOnionIcon->setToolTip(tr("Connected to the Tor network"));
+    }
+
+
 }
 
 void BitcoinGUI::setNumBlocks(int count, int nTotalBlocks)

@@ -1,5 +1,5 @@
-#ifndef HASHBLOCK_H
-#define HASHBLOCK_H
+#ifndef HASHBLOCK15_H
+#define HASHBLOCK15_H
 
 #include "uint256.h"
 #include "sph_blake.h"
@@ -75,7 +75,7 @@ GLOBAL sph_whirlpool_context     z_whirlpool;
 #define ZSHABAL (memcpy(&ctx_shabal, &z_shabal, sizeof(z_shabal)))
 #define ZWHIRLPOOL (memcpy(&ctx_whirlpool, &z_whirlpool, sizeof(z_whirlpool)))
 template<typename T1>
-inline uint256 HashSph(const T1 pbegin, const T1 pend)
+inline uint256 Hash15(const T1 pbegin, const T1 pend)
 
 {
     sph_blake512_context     ctx_blake;
@@ -171,4 +171,4 @@ inline uint256 HashSph(const T1 pbegin, const T1 pend)
 
 
 
-#endif // HASHBLOCK_H
+#endif // HASHBLOCK15_H
