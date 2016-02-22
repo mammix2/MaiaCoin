@@ -1194,10 +1194,10 @@ static const char *strDNSSeed[][2] = {
 };
 // hidden service seeds
 static const char *strMainNetOnionSeed[][1] = {
-    {"yb7khzpwak2kexr7.onion"}, // node 02 native
-    {"kp2cn6ndfbsil6iz.onion"}, // node 03 native
-    {"mrp77r53iwbmlkgb.onion"}, // node 04 hybrid
-    {"vjfinlo3xqlqv67h.onion"}, // node 05 hybrid
+    {"yb7khzpwak2kexr7.onion"}, // node 02 hybrid
+    {"kp2cn6ndfbsil6iz.onion"}, // node 03 hybrid
+    {"mrp77r53iwbmlkgb.onion"}, // node 04 native
+    {"vjfinlo3xqlqv67h.onion"}, // node 05 native
     {NULL}
 };
 
