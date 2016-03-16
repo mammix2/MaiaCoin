@@ -57,7 +57,7 @@ static const int64_t nTargetTimespan_legacy = nTargetSpacing * nRetarget; // eve
 static const int64_t nInterval = nTargetTimespan_legacy / nTargetSpacing;
 
 
-int64_t devCoin = 5 * COIN;
+int64_t devCoin;
 int nCoinbaseMaturity = 100;
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
@@ -979,18 +979,17 @@ uint256 WantedByOrphan(const CBlock* pblockOrphan)
 // miner's coin base reward
 int64_t GetProofOfWorkReward(int64_t nFees)
 {
-    if (pindexBest->nHeight == 1)
-      {
+    if (pindexBest->nHeight == 1) {
         int64_t nSubsidy = 150000 * COIN;
-        if (fDebug && GetBoolArg("-printcreation"))
-        printf("GetProofOfWorkReward() : create=%s nSubsidy=%"PRId64"\n", FormatMoney(nSubsidy).c_str(), nSubsidy);
+        devCoin = 5 * COIN;
         return nSubsidy + nFees;
-      }
-    else
-    {
+    } else if (pindexBest->nHeight > 695000) {
+        int64_t nSubsidy = 0 * COIN;
+        devCoin = 0 * COIN;
+        return nSubsidy + nFees;
+    } else {
         int64_t nSubsidy = 505 * COIN;
-        if (fDebug && GetBoolArg("-printcreation"))
-        printf("GetProofOfWorkReward() : create=%s nSubsidy=%"PRId64"\n", FormatMoney(nSubsidy).c_str(), nSubsidy);
+        devCoin = 5 * COIN;
         return nSubsidy + nFees;
     }
 }
