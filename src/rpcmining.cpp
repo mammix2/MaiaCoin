@@ -123,8 +123,6 @@ Value getworkex(const Array& params, bool fHelp)
     if (IsInitialBlockDownload())
         throw JSONRPCError(-10, "MaiaCoin is downloading blocks...");
 
-    int fPoW_Switch = GetArg("-powenable", 0);
-
     if (GetBoolArg("-testnet")){
         if (pindexBest->nHeight >= P1_End_TestNet && pindexBest->nHeight < P2_Start_TestNet){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
@@ -132,8 +130,6 @@ Value getworkex(const Array& params, bool fHelp)
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
         } else if (pindexBest->nHeight > P3_End_TestNet){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
-        } else if (fPoW_Switch == 0) {
-            throw JSONRPCError(RPC_MISC_ERROR, "PoW mining not allowed");
         }
     }else {
         if (pindexBest->nHeight >= P1_End && pindexBest->nHeight < P2_Start){
@@ -142,8 +138,6 @@ Value getworkex(const Array& params, bool fHelp)
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
         } else if (pindexBest->nHeight > P3_End){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
-        } else if (fPoW_Switch == 0) {
-           throw JSONRPCError(RPC_MISC_ERROR, "PoW mining not allowed");
         }
     }
 
@@ -279,8 +273,6 @@ Value getwork(const Array& params, bool fHelp)
     if (IsInitialBlockDownload())
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "MaiaCoin is downloading blocks...");
 
-    int fPoW_Switch = GetArg("-powenable", 0);
-
     if (GetBoolArg("-testnet")){
         if (pindexBest->nHeight >= P1_End_TestNet && pindexBest->nHeight < P2_Start_TestNet){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
@@ -288,8 +280,6 @@ Value getwork(const Array& params, bool fHelp)
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
         } else if (pindexBest->nHeight > P3_End_TestNet){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
-        } else if (fPoW_Switch == 0) {
-            throw JSONRPCError(RPC_MISC_ERROR, "PoW mining not allowed");
         }
     }else {
         if (pindexBest->nHeight >= P1_End && pindexBest->nHeight < P2_Start){
@@ -298,8 +288,6 @@ Value getwork(const Array& params, bool fHelp)
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
         } else if (pindexBest->nHeight > P3_End){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
-        } else if (fPoW_Switch == 0) {
-            throw JSONRPCError(RPC_MISC_ERROR, "PoW mining not allowed");
         }
     }
 
@@ -444,7 +432,6 @@ Value getblocktemplate(const Array& params, bool fHelp)
     if (IsInitialBlockDownload())
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "MaiaCoin is downloading blocks...");
 
-    int fPoW_Switch = GetArg("-powenable", 0);
 
     if (GetBoolArg("-testnet")){
         if (pindexBest->nHeight >= P1_End_TestNet && pindexBest->nHeight < P2_Start_TestNet){
@@ -453,8 +440,6 @@ Value getblocktemplate(const Array& params, bool fHelp)
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
         } else if (pindexBest->nHeight > P3_End_TestNet){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
-        } else if (fPoW_Switch == 0) {
-            throw JSONRPCError(RPC_MISC_ERROR, "PoW mining not allowed");
         }
     }else {
         if (pindexBest->nHeight >= P1_End && pindexBest->nHeight < P2_Start){
@@ -463,8 +448,6 @@ Value getblocktemplate(const Array& params, bool fHelp)
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
         } else if (pindexBest->nHeight > P3_End){
             throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
-        } else if (fPoW_Switch == 0) {
-            throw JSONRPCError(RPC_MISC_ERROR, "PoW mining not allowed");
         }
     }
 
