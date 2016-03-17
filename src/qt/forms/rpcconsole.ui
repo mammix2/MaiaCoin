@@ -426,7 +426,7 @@
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Standard P2P conncetivity over IP</string>
+          <string>Standard P2P connectivity over IP</string>
          </property>
         </widget>
        </item>
