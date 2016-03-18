@@ -1110,7 +1110,7 @@ unsigned int static GetNextWorkRequired_legacy(const CBlockIndex* pindexLast)
 
 static unsigned int GetNextTargetRequired_DGW(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
-    if (pindexBest->nHeight > (fTestNet ? 100 : 685500)) {
+    if (pindexBest->nHeight > (fTestNet ? 100 : 685300)) {
         nTargetSpacing = 5 * 60;
 	}
     CBigNum bnTargetLimit = fProofOfStake ? bnProofOfStakeLimit : bnProofOfWorkLimit;

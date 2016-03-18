@@ -27,7 +27,7 @@ class CInv;
 class CRequestTracker;
 class CNode;
 
-static const int LAST_OLD_POS_BLOCK = 700000;
+static const int LAST_OLD_POS_BLOCK = 685500;
 static const unsigned int MAX_BLOCK_SIZE = 1000000;
 static const unsigned int MAX_BLOCK_SIZE_GEN = MAX_BLOCK_SIZE/2;
 static const unsigned int MAX_BLOCK_SIGOPS = MAX_BLOCK_SIZE/50;
@@ -38,7 +38,7 @@ static const int64_t MIN_RELAY_TX_FEE = MIN_TX_FEE;
 static const int64_t MAX_MONEY = 400000000 * COIN;
 static const int64_t COIN_YEAR_REWARD = 1 * CENT; // 1% per year
 static const int64_t POS_STAKE_REWARD = 0.05 * COIN; // 5% annual interest
-static const int V2_CHAIN_PARAMS_TIME = 1455570000;
+static const int V2_CHAIN_PARAMS_TIME = 1458417600; // Sat, 19 Mar 2016 20:00:00 GMT
 #define FOUNDATION "MBKVCNHtGHdtxA5jfpYnaibCeYR25UpwUY"
 #define FOUNDATION_TEST "mnkAosicqQVunBvc3jc5KW2c97NestS2WF"
 
