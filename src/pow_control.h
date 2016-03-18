@@ -6,7 +6,7 @@ extern bool fTestNet;
 static const int P1_End = 43200;
 static const int P2_Start = 180000;
 static const int P2_End = 200000;
-static const int P3_Start = 685142;
+static const int P3_Start = 685114;
 static const int P3_End = 10000000;
 
 
