@@ -7,7 +7,7 @@ TEMPLATE = app
 DEFINES += FN1 FN2
 FN1 = maiacoin-core
 FN2 = -qt-v
-VERSION = 4.4.1.3
+VERSION = 4.4.1.4
 TARGET = $$FN1$$FN2$$VERSION
 INCLUDEPATH += src src/json \
     src/qt \
